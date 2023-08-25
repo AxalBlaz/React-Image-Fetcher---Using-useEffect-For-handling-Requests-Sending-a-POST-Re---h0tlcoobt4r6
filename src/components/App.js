@@ -1,37 +1,34 @@
-import React, { useEffect, useState } from "react";
-import "../styles/App.css";
-import { Loader } from "./Loader";
-import { PhotoFrame } from "./PhotoFrame";
+import React from 'react'
+import '../styles/App.css';
+import { Loader } from './Loader';
+import { PhotoFrame } from './PhotoFrame';
 const App = () => {
-  const [id, setId] = useState(null);
-  const [data, setData] = useState({});
-  const [loading, setLoading] = useState(false);
-  async function getData() {
-    setLoading(true);
-    try {
-      const resp = await fetch(
-        `https://jsonplaceholder.typicode.com/photos/${id}`
-      );
-      const json = await resp.json();
-      setData(json);
-    } catch(err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-    }
+
+  const [input, setInput] = React.useState()
+  const [isFetched, setIsFetched] = React.useState()
+
+  React.useEffect(()=>{
+    setIsFetched()
+    fetch(`https://jsonplaceholder.typicode.com/photos/${input}`)
+    .then((response)=>{return response.json()})
+    .then((result)=>{setIsFetched(result)})
+  },[input])
+
+  console.log(isFetched, input)
+
+  function handleOnChange(value){
+    if(value>5000 || value<1) return
+    setInput(value)
   }
-  useEffect(() => {
-    if(id !== null){
-      getData();
-    }
-  }, [id]);
-  return (
+
+  return(
     <>
-      <label>Id Number</label>
-      <input type="number" value={id} onChange={(e) => setId(e.target.value)} />
-      {id===null ? <></> : loading ? <Loader /> : <PhotoFrame url={data.url} title={data.title} />}
+      <label>Id number </label>
+      <input type="number" value={input} onChange={(e)=>handleOnChange(e.target.value)}/>
+      {isFetched && <PhotoFrame url={isFetched.url} title={isFetched.title} />}
+      {!isFetched && <Loader />}
     </>
-  );
-};
-​
+  )
+}
+
 export default App;
